@@ -4,3 +4,6 @@
 [submodule "lib/world-id-onchain-template"]
 	path = lib/world-id-onchain-template
 	url = https://github.com/worldcoin/world-id-onchain-template
+[submodule "lib/maci"]
+	path = lib/maci
+	url = https://github.com/privacy-scaling-explorations/maci
