@@ -1,0 +1,4 @@
+ds-test/=lib/world-id-onchain-template/contracts/lib/forge-std/lib/ds-test/src/
+forge-std/=lib/forge-std/src/
+maci/=lib/maci/
+world-id-onchain-template/=lib/world-id-onchain-template/
