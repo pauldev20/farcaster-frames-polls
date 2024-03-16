@@ -96,6 +96,7 @@ export async function POST(request: Request) {
 
 				return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=vote`, request.url));
 			}
+			return new NextResponse();
 		}
 		const verification = await createVerification({
 			app_id: "app_ccc994b5ef2d751551e1a0552d30e8e4",
