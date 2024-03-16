@@ -1,4 +1,4 @@
-RPC="https://sepolia.base.org"
+RPC="https://base-sepolia.g.alchemy.com/v2/xC7gy-WyxYdV48GlxEyP4n6xuVfYRTK3"
 
 none:
 
