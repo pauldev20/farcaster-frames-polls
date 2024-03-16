@@ -4,6 +4,23 @@ import { VerificationLevel } from '@worldcoin/idkit-core';
 import { NextResponse } from 'next/server';
 import { ImageResponse } from "next/og";
 import qrcode from "qrcode";
+import { createPimlicoPaymasterClient } from 'permissionless/clients/pimlico';
+import { Address, createPublicClient, http } from 'viem';
+import { baseSepolia } from 'viem/chains'
+import { ENTRYPOINT_ADDRESS_V06 } from 'permissionless';
+import { privateKeyToSafeSmartAccount } from 'permissionless/accounts';
+
+
+const paymasterUrl = `https://api.pimlico.io/v2/base-sepolia/rpc?apikey=${process.env['PIMLICO_API_KEY']}`
+const bundlerUrl = `https://api.pimlico.io/v1/base-sepolia/rpc?apikey=${process.env['PIMLICO_API_KEY']}`
+const publicClient = createPublicClient({
+	transport: http("https://rpc.ankr.com/eth_sepolia"),
+});
+const paymasterClient = createPimlicoPaymasterClient({
+	entryPoint: ENTRYPOINT_ADDRESS_V06,
+	transport: http(paymasterUrl),
+	chain: baseSepolia
+})
 
 export async function GET(request: Request) {
 	const { searchParams } = new URL(request.url);
@@ -70,7 +87,9 @@ export async function POST(request: Request) {
 	if (action === "register") {
 		const body: FrameRequest = await request.json();
 		const { isValid, message } = await getFrameMessage(body);
-		console.log(isValid, message);
+		if (!isValid || !message) {
+			throw new Error("Invalid Frame Request");
+		}
 
 		if (searchParams.get("post") == "true") {
 			// check if validation was successfull - redirect, else show again
@@ -83,6 +102,14 @@ export async function POST(request: Request) {
 				key: key
 			});
 
+			const account = await privateKeyToSafeSmartAccount(publicClient, {
+				privateKey: process.env["PRIVATE_KEY"] as Address,
+				safeVersion: "1.4.1", // simple version
+				entryPoint: ENTRYPOINT_ADDRESS_V06, // global entrypoint
+				saltNonce: BigInt(message.interactor.fid)
+			})
+			console.log(account);
+
 			if (status == true) {
 				return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=vote`, request.url));
 			}
@@ -91,7 +118,7 @@ export async function POST(request: Request) {
 			app_id: "app_ccc994b5ef2d751551e1a0552d30e8e4",
 			action: "anonymous-vote",
 			verification_level: VerificationLevel.Orb,
-			signal: ""
+			signal: message.interactor.fid.toString()
 		});
 		return new NextResponse(getFrameHtmlResponse({
 			buttons: [
