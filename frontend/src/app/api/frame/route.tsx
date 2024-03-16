@@ -12,13 +12,7 @@ export async function GET(request: Request) {
 
 	/* ---------------------- Registration and Verification --------------------- */
 	if (screen === "register") {
-		const verification = await createVerification({
-			app_id: "app_ccc994b5ef2d751551e1a0552d30e8e4",
-			action: "anonymous-vote",
-			verification_level: VerificationLevel.Orb,
-			signal: ""
-		});
-		const qrCode = await qrcode.toDataURL(verification.connectionURI, {
+		const qrCode = await qrcode.toDataURL(decodeURIComponent(searchParams.get("qr")|| ""), {
 			width: 500,
 			margin: 1,
 			color: {
@@ -79,17 +73,23 @@ export async function POST(request: Request) {
 			const body: FrameRequest = await request.json();
 
 			/* ------------------------------ Check WorldID ----------------------------- */
-			const key = searchParams.get("key");
-			const request_id = searchParams.get("request_id");
+			const key = decodeURIComponent(searchParams.get("key") || "");
+			const request_id = decodeURIComponent(searchParams.get("request_id") || "");
 			const { status, result } = await checkVerification({
-				request_id: request_id || "",
-				key: key || ""
+				request_id: request_id,
+				key: key
 			});
 
 			if (status == true) {
 				return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=vote`, request.url));
 			}
 		}
+		const verification = await createVerification({
+			app_id: "app_ccc994b5ef2d751551e1a0552d30e8e4",
+			action: "anonymous-vote",
+			verification_level: VerificationLevel.Orb,
+			signal: ""
+		});
 		return new NextResponse(getFrameHtmlResponse({
 			buttons: [
 				{
@@ -97,8 +97,8 @@ export async function POST(request: Request) {
 					action: "post"
 				},
 			],
-			image: `${process.env['HOST']}/api/frame?id=${id}&screen=register`,
-			post_url: `${process.env['HOST']}/api/frame?id=${id}&action=register&post=true`
+			image: `${process.env['HOST']}/api/frame?id=${id}&screen=register&qr=${encodeURIComponent(verification.connectionURI)}`,
+			post_url: `${process.env['HOST']}/api/frame?id=${id}&action=register&post=true&key=${encodeURIComponent(verification.key)}&request_id=${encodeURIComponent(verification.request_id)}`
 		}));
 	}
 
