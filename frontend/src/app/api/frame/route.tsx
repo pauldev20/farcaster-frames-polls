@@ -1,9 +1,9 @@
 import { FrameRequest, getFrameHtmlResponse, getFrameMessage } from '@coinbase/onchainkit';
+import { createVerification, checkVerification } from './wldConnect';
 import { Options, QRCodeCanvas } from '@loskir/styled-qr-code-node';
+import { VerificationLevel } from '@worldcoin/idkit-core';
 import { NextResponse } from 'next/server';
 import { ImageResponse } from "next/og";
-import { createConnectURI } from './wldConnect';
-import { VerificationLevel } from '@worldcoin/idkit-core';
 
 export async function GET(request: Request) {
 	const { searchParams } = new URL(request.url);
@@ -12,18 +12,16 @@ export async function GET(request: Request) {
 
 	/* ---------------------- Registration and Verification --------------------- */
 	if (screen === "register") {
-		const connectorURI = await createConnectURI({
+		const verification = await createVerification({
 			app_id: "app_ccc994b5ef2d751551e1a0552d30e8e4",
 			action: "anonymous-vote",
 			verification_level: VerificationLevel.Orb,
 			signal: ""
 		});
-		console.log(connectorURI);
-
 		const qrCode = new QRCodeCanvas({
 			width: 400,
 			height: 400,
-			data: connectorURI || "https://worldcoin.org",
+			data: verification.connectionURI || "",
 			image: "http://" + process.env["HOST"] + "/wldicon.png",
 			dotsOptions: {
 				color: "#ffffff",
@@ -90,7 +88,18 @@ export async function POST(request: Request) {
 		if (searchParams.get("post") == "true") {
 			// check if validation was successfull - redirect, else show again
 			const body: FrameRequest = await request.json();
-			return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=vote`, request.url));
+
+			/* ------------------------------ Check WorldID ----------------------------- */
+			const key = searchParams.get("key");
+			const request_id = searchParams.get("request_id");
+			const { status, result } = await checkVerification({
+				request_id: request_id || "",
+				key: key || ""
+			});
+
+			if (status == true) {
+				return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=vote`, request.url));
+			}
 		}
 		return new NextResponse(getFrameHtmlResponse({
 			buttons: [

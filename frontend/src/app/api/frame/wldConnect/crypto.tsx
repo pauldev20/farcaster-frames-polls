@@ -7,7 +7,7 @@ const buffer_encode = (buffer: ArrayBuffer): string => {
 	return Buffer.from(buffer).toString('base64')
 }
 
-const buffer_decode = (encoded: string): ArrayBuffer => {
+export const buffer_decode = (encoded: string): ArrayBuffer => {
 	return Buffer.from(encoded, 'base64')
 }
 
@@ -20,6 +20,10 @@ export const generateKey = async (): Promise<{ key: CryptoKey; iv: Uint8Array }>
 
 export const exportKey = async (key: CryptoKey): Promise<string> => {
 	return buffer_encode(await crypto.webcrypto.subtle.exportKey('raw', key))
+}
+
+export const loadKey = async (encoded: string): Promise<CryptoKey> => {
+	return crypto.webcrypto.subtle.importKey('raw', buffer_decode(encoded), { name: 'AES-GCM' }, true, ['encrypt', 'decrypt'])
 }
 
 export const encryptRequest = async (
@@ -36,5 +40,5 @@ export const encryptRequest = async (
 }
 
 export const decryptResponse = async (key: CryptoKey, iv: ArrayBuffer, payload: string): Promise<string> => {
-	return decoder.decode(await window.crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, buffer_decode(payload)))
+	return decoder.decode(await crypto.webcrypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, buffer_decode(payload)))
 }
