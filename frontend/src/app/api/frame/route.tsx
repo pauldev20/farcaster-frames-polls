@@ -68,7 +68,6 @@ export async function POST(request: Request) {
 	const id = searchParams.get('id');
 
 	/* ------------------------- Load And Parse Message ------------------------- */
-	console.log(await request.json());
 	const body: FrameRequest = await request.json();
 	const { isValid, message } = await getFrameMessage(body);
 	if (!isValid || !message) {
@@ -122,8 +121,7 @@ export async function POST(request: Request) {
 	if (action === "vote") {
 		if (searchParams.get("post") == "true") {
 			// submit vote to the server and redirect to thanks
-			const body: FrameRequest = await request.json();
-			console.log(body.untrustedData.fid);
+			console.log(message.interactor.fid);
 			return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=thanks`, request.url));
 		}
 		return new NextResponse(getFrameHtmlResponse({
