@@ -28,7 +28,7 @@ const getAccount = async (fid: number) => {
 		accountClient: smartAccountClient,
 		deployed: await publicClient.getBytecode({
 			address: account.address
-		}) !== "0x"
+		}) !== undefined
 	}
 }
 
