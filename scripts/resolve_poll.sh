@@ -65,7 +65,8 @@ coord_priv=macisk.e6f574787e05b5d7622e8b648be71bfc2120ba6230e107e1e581a698791335
 #     -tw ./zkeys/TallyVotes_10-1-2_test/TallyVotes_10-1-2_test_js/TallyVotes_10-1-2_test.wasm \
 #     -pw ./zkeys/ProcessMessages_10-2-1-2_test/ProcessMessages_10-2-1-2_test_js/ProcessMessages_10-2-1-2_test.wasm \
 #     -w true \
-#     --start-block 7426694
+#     --start-block 7426694 \
+#     --use-quadratic-voting false
 
 echo "$BLUE proveOnChain $RESET"
 node build/ts/index.js proveOnChain \
