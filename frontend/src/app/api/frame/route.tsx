@@ -1,5 +1,5 @@
 import { FrameRequest, getFrameHtmlResponse, getFrameMessage } from '@coinbase/onchainkit';
-import { createVerification, checkVerification } from './wldConnect';
+import { createVerification, checkVerification, createURI } from './wldConnect';
 import { createAccount, getAccount } from './safeAccount';
 import { VerificationLevel } from '@worldcoin/idkit-core';
 import { NextResponse } from 'next/server';
@@ -93,10 +93,9 @@ export async function POST(request: Request) {
 				return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=vote`, request.url));
 			}
 		}
-		let connURI, request_id, key;
+		let request_id, key;
 		if (searchParams.get("post") == "true" && message.button == 1) {
 			request_id = decodeURIComponent(searchParams.get("request_id") || "");
-			connURI = decodeURIComponent(searchParams.get("qr") || "");
 			key = decodeURIComponent(searchParams.get("key") || "");
 		} else {
 			const verification = await createVerification({
@@ -106,9 +105,9 @@ export async function POST(request: Request) {
 				signal: message.interactor.fid.toString()
 			});
 			request_id = verification.request_id;
-			connURI = verification.connectionURI;
 			key = verification.key;
 		}
+		const connURI = createURI(request_id, key);
 		return new NextResponse(getFrameHtmlResponse({
 			buttons: [
 				{
@@ -121,7 +120,7 @@ export async function POST(request: Request) {
 				}
 			],
 			image: `${process.env['HOST']}/api/frame?id=${id}&screen=register&qr=${encodeURIComponent(connURI)}`,
-			post_url: `${process.env['HOST']}/api/frame?id=${id}&action=register&post=true&key=${encodeURIComponent(key)}&request_id=${encodeURIComponent(request_id)}&qr=${encodeURIComponent(connURI)}`
+			post_url: `${process.env['HOST']}/api/frame?id=${id}&action=register&post=true&key=${encodeURIComponent(key)}&request_id=${encodeURIComponent(request_id)}`
 		}));
 	}
 
