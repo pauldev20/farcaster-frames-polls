@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 			{/* eslint-disable-next-line @next/next/no-img-element */}
 			<img src={qrCode} alt="QRCode" style={{height: "400px", width: "400px"}}/>
 			<div style={{display: "flex", justifyContent: "center", alignItems: "center", textWrap: "wrap"}}>
-				<h1 style={{maxWidth: "500px", overflowWrap: "break-word", textAlign: "center"}}>Please scan with your World ID App to verify. Then press the Submit Button</h1>
+				<h1 style={{maxWidth: "500px", overflowWrap: "break-word", textAlign: "center"}}>Please scan with your World ID App to verify. Then press the Refresh Button</h1>
 			</div>
 		</div>), {width: 1200, height: 630});
 	}
@@ -72,11 +72,15 @@ export async function POST(request: Request) {
 	if (!isValid || !message) {
 		throw new Error("Invalid Frame Request");
 	}
+	const { deployed, address } = await getAccount(message.interactor.fid);
 
 	/* ----------------------------- Register Action ---------------------------- */
 	if (action === "register") {
-		if (searchParams.get("post") == "true" && message.button == 2) {
+		if (searchParams.get("post") == "true") {
 			// check if validation was successfull - redirect, else show again
+			if (deployed) {
+				return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=vote`, request.url));
+			}
 
 			/* ------------------------------ Check WorldID ----------------------------- */
 			const key = decodeURIComponent(searchParams.get("key") || "");
@@ -93,34 +97,21 @@ export async function POST(request: Request) {
 				return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=vote`, request.url));
 			}
 		}
-		let request_id, key;
-		if (searchParams.get("post") == "true" && message.button == 1) {
-			request_id = decodeURIComponent(searchParams.get("request_id") || "");
-			key = decodeURIComponent(searchParams.get("key") || "");
-		} else {
-			const verification = await createVerification({
-				app_id: "app_ccc994b5ef2d751551e1a0552d30e8e4",
-				action: "anonymous-vote",
-				verification_level: VerificationLevel.Orb,
-				signal: message.interactor.fid.toString()
-			});
-			request_id = verification.request_id;
-			key = verification.key;
-		}
-		const connURI = createURI(request_id, key);
+		const verification = await createVerification({
+			app_id: "app_ccc994b5ef2d751551e1a0552d30e8e4",
+			action: "anonymous-vote",
+			verification_level: VerificationLevel.Orb,
+			signal: message.interactor.fid.toString()
+		});
 		return new NextResponse(getFrameHtmlResponse({
 			buttons: [
 				{
 					label: `Refresh`,
 					action: "post"
-				},
-				{
-					label: `Submit`,
-					action: "post"
 				}
 			],
-			image: `${process.env['HOST']}/api/frame?id=${id}&screen=register&qr=${encodeURIComponent(connURI)}`,
-			post_url: `${process.env['HOST']}/api/frame?id=${id}&action=register&post=true&key=${encodeURIComponent(key)}&request_id=${encodeURIComponent(request_id)}`
+			image: `${process.env['HOST']}/api/frame?id=${id}&screen=register&qr=${encodeURIComponent(verification.connectionURI)}`,
+			post_url: `${process.env['HOST']}/api/frame?id=${id}&action=register&post=true&key=${encodeURIComponent(verification.key)}&request_id=${encodeURIComponent(verification.request_id)}`
 		}));
 	}
 
@@ -178,7 +169,6 @@ export async function POST(request: Request) {
 
 	/* ----------------------------- Default Action ----------------------------- */
 	// check if poll ended
-	const { deployed } = await getAccount(message.interactor.fid);
 	if (!deployed) {
 		return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=register`, request.url));
 	}
