@@ -7,3 +7,6 @@
 [submodule "contracts/lib/forge-std"]
 	path = contracts/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "contracts/lib/world-id-onchain-template"]
+	path = contracts/lib/world-id-onchain-template
+	url = https://github.com/worldcoin/world-id-onchain-template
