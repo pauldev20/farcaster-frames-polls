@@ -1,9 +1,9 @@
 import { FrameRequest, getFrameHtmlResponse, getFrameMessage } from '@coinbase/onchainkit';
 import { createVerification, checkVerification } from './wldConnect';
-import { Options, QRCodeCanvas } from '@loskir/styled-qr-code-node';
 import { VerificationLevel } from '@worldcoin/idkit-core';
 import { NextResponse } from 'next/server';
 import { ImageResponse } from "next/og";
+import qrcode from "qrcode";
 
 export async function GET(request: Request) {
 	const { searchParams } = new URL(request.url);
@@ -18,29 +18,18 @@ export async function GET(request: Request) {
 			verification_level: VerificationLevel.Orb,
 			signal: ""
 		});
-		const qrCode = new QRCodeCanvas({
-			width: 400,
-			height: 400,
-			data: verification.connectionURI || "",
-			image: "http://" + process.env["HOST"] + "/wldicon.png",
-			dotsOptions: {
-				color: "#ffffff",
-				type: "rounded",
-			},
-			backgroundOptions: {
-				color: "#00000000",
-			},
-			imageOptions: {
-				hideBackgroundDots: true,
-				imageSize: 0.3,
-				margin: 10,
-			},
+		const qrCode = await qrcode.toDataURL(verification.connectionURI, {
+			width: 500,
+			margin: 1,
+			color: {
+				dark: "#ffffff",
+				light: "#00000000"
+			}
 		});
-		const qrurl = await qrCode.toDataUrl("png", {quality: 1, density: 4});
 
 		return new ImageResponse((<div style={{backgroundColor: "black", display: "flex", width: "100%", height: "100%", color: "white", justifyContent: "center", alignItems: "center", gap: "15px"}}>
 			{/* eslint-disable-next-line @next/next/no-img-element */}
-			<img src={qrurl} alt="QRCode" style={{height: "400px", width: "400px"}}/>
+			<img src={qrCode} alt="QRCode" style={{height: "400px", width: "400px"}}/>
 			<div style={{display: "flex", justifyContent: "center", alignItems: "center", textWrap: "wrap"}}>
 				<h1 style={{maxWidth: "500px", overflowWrap: "break-word", textAlign: "center"}}>Please scan with your World ID App to verify. Then press the Submit Button</h1>
 			</div>
