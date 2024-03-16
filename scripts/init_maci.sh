@@ -1,6 +1,14 @@
 BLUE='\e[0;34m'
 RESET='\e[0m'
 
+# gatekeeper=0xDd34A8E7345E7D398Fc618421AF57c6812b76bBd
+gatekeeper=$1
+
+if [ -z "$1" ]; then
+    echo "Missing gatekeeper parameter. usage: sh init_maci.sh [gatekeeper_address]"
+    exit
+fi
+
 CLI_DIR='../../votelik/maci/cli'
 cd $CLI_DIR
 
@@ -18,4 +26,5 @@ node build/ts/index.js setVerifyingKeys \
     --tally-votes-zkey ./zkeys/TallyVotes_10-1-2_test/TallyVotes_10-1-2_test.0.zkey
 
 echo "$BLUE create MACI $RESET"
-node build/ts/index.js create -s 10
+node build/ts/index.js create -s 10 \
+    --signupGatekeeperAddress $gatekeeper

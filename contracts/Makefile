@@ -1,12 +1,14 @@
-RPC="https://base-sepolia.g.alchemy.com/v2/xC7gy-WyxYdV48GlxEyP4n6xuVfYRTK3"
+RPC="http://127.0.0.1:8545/"
+
+include .env
+export
 
 none:
 
 deploy-gatekeeper:
-	forge script DeployGatekeeper --fork-url ${RPC}
+	forge script DeployGatekeeper --fork-url ${RPC} --broadcast --private-key $(PRIVATE_KEY)
 set-maci-gatekeeper:
-	forge script SetMaciGatekeeper --fork-url ${RPC}
-
+	forge script SetMaciGatekeeper --fork-url ${RPC} --broadcast --private-key $(PRIVATE_KEY)
 
 test-gatekeeper:
 	forge test --match-test "testGatekeeper" --fork-url ${RPC} -vvvv
