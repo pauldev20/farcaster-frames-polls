@@ -34,29 +34,68 @@ app.post('/create', (req, res) => {
     };
 
     // Store poll in memory
-    polls.push(poll);
+    
 
-    exec('node ../../votelik/maci/cli/build/ts/index.js deployPoll \
+    exec('cd ../../votelik/maci/cli && node ./build/ts/index.js deployPoll \
     -pk macipk.398a064125bfa6572b9fac45e9157546fb61df9aa9b721c2e8da32b07abf83a7 \
-    -t 300 -i 1 -m 2 -b 1 -v ' + options.length, (error, stdout, stderr) => {
+    --maci-address 0x1A77064Ab499C90b48b6f6819a01CE316B4A24eF \
+    -t 100 -i 1 -m 2 -b 1 -v ' + options.length, (error, stdout, stderr) => {
         if (error) {
-          console.error(`Error: ${error.message}`);
-          return;
+            console.error(`Error: ${error.message}`);
+            return res.status(500).json({ error: 'Internal server error' });
         }
         if (stderr) {
-          console.error(`stderr: ${stderr}`);
-          return;
+            console.error(`stderr: ${stderr}`);
+            return res.status(500).json({ error: 'Internal server error' });
         }
         console.log(`stdout: ${stdout}`);
+
+        // Check the exit code
+        if (error && error.code !== 0) {
+            console.error(`Error: ${error.message}`);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        const pollIdRegex = /Poll ID: (\d+)/;
+        const pollContractRegex = /Poll contract: (0x[a-fA-F0-9]+)/;
+
+        const pollIdMatch = stdout.match(pollIdRegex);
+        const pollContractMatch = stdout.match(pollContractRegex);
+
+        if (pollIdMatch && pollContractMatch) {
+            const pollId = pollIdMatch[1];
+            const pollContract = pollContractMatch[1];
+            
+            console.log("Poll ID:", pollId);
+            console.log("Poll contract:", pollContract);
+
+            poll['id'] = pollId;
+            poll['contract'] = pollContract;
+            polls.push(poll);
+
+            return res.status(201).json({ message: 'Poll created successfully' , pollId: pollId});
+        }
+        res.status(404).json({ message: 'Poll id not found' });
     });
 
-    options.length
-    res.status(201).json({ message: 'Poll created successfully' });
 });
 
 // Endpoint to get all polls
 app.get('/polls', (req, res) => {
     res.json(polls);
+});
+
+app.post('/tally', (req, res) => {
+    const tally = req.body;
+
+    const index = polls.findIndex(poll => poll.id === tally.pollId);
+
+    if (index !== -1) {
+        polls[index].tally = tally;
+        res.json(polls);
+    } else {
+        res.status(404).json({ error: 'Poll not found' });
+    }
 });
 
 // Start server
