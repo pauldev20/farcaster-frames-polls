@@ -5,11 +5,14 @@ import { VerificationLevel } from '@worldcoin/idkit-core';
 import { NextResponse } from 'next/server';
 import { ImageResponse } from "next/og";
 import qrcode from "qrcode";
+import { test } from './maciConnect';
 
 export async function GET(request: Request) {
 	const { searchParams } = new URL(request.url);
 	const screen = searchParams.get('screen');
 	const id = searchParams.get('id');
+
+	test();
 
 	/* ---------------------- Registration and Verification --------------------- */
 	if (screen === "register") {
