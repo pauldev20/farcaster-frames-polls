@@ -29,4 +29,5 @@ cd $CLI_DIR
 
 echo "$BLUE create MACI $RESET"
 node build/ts/index.js create -s 10 \
-    --signupGatekeeperAddress $gatekeeper
+    --signupGatekeeperAddress $gatekeeper \
+    --use-quadratic-voting false

@@ -17,5 +17,6 @@ coord_priv=macisk.e6f574787e05b5d7622e8b648be71bfc2120ba6230e107e1e581a698791335
 
 node ./build/ts/index.js deployPoll \
     -pk $coord_pub \
-	--maci-address 0x10c60c92b24b6bB1Cd620935cc4627C8Fe8cfC3B \
     -t 100 -i 1 -m 2 -b 1 -v 2
+
+# --maci-address 0x10c60c92b24b6bB1Cd620935cc4627C8Fe8cfC3B \
