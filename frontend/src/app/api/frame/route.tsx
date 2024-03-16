@@ -67,6 +67,7 @@ export async function POST(request: Request) {
 	const action = searchParams.get('action');
 	const id = searchParams.get('id');
 
+	/* ------------------------- Load And Parse Message ------------------------- */
 	const body: FrameRequest = await request.json();
 	const { isValid, message } = await getFrameMessage(body);
 	if (!isValid || !message) {
