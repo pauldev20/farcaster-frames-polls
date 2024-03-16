@@ -78,7 +78,7 @@ export async function POST(request: Request) {
 
 	/* ----------------------------- Register Action ---------------------------- */
 	if (action === "register") {
-		if (searchParams.get("post") == "true") {
+		if (searchParams.get("post") == "true" && message.button == 2) {
 			// check if validation was successfull - redirect, else show again
 
 			/* ------------------------------ Check WorldID ----------------------------- */
@@ -96,21 +96,35 @@ export async function POST(request: Request) {
 				return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=vote`, request.url));
 			}
 		}
-		const verification = await createVerification({
-			app_id: "app_ccc994b5ef2d751551e1a0552d30e8e4",
-			action: "anonymous-vote",
-			verification_level: VerificationLevel.Orb,
-			signal: message.interactor.fid.toString()
-		});
+		let connURI, request_id, key;
+		if (searchParams.get("post") == "true" && message.button == 1) {
+			request_id = decodeURIComponent(searchParams.get("request_id") || "");
+			connURI = decodeURIComponent(searchParams.get("qr") || "");
+			key = decodeURIComponent(searchParams.get("key") || "");
+		} else {
+			const verification = await createVerification({
+				app_id: "app_ccc994b5ef2d751551e1a0552d30e8e4",
+				action: "anonymous-vote",
+				verification_level: VerificationLevel.Orb,
+				signal: message.interactor.fid.toString()
+			});
+			request_id = verification.request_id;
+			connURI = verification.connectionURI;
+			key = verification.key;
+		}
 		return new NextResponse(getFrameHtmlResponse({
 			buttons: [
 				{
-					label: `Submit`,
+					label: `Refresh`,
 					action: "post"
 				},
+				{
+					label: `Submit`,
+					action: "post"
+				}
 			],
-			image: `${process.env['HOST']}/api/frame?id=${id}&screen=register&qr=${encodeURIComponent(verification.connectionURI)}`,
-			post_url: `${process.env['HOST']}/api/frame?id=${id}&action=register&post=true&key=${encodeURIComponent(verification.key)}&request_id=${encodeURIComponent(verification.request_id)}`
+			image: `${process.env['HOST']}/api/frame?id=${id}&screen=register&qr=${encodeURIComponent(connURI)}`,
+			post_url: `${process.env['HOST']}/api/frame?id=${id}&action=register&post=true&key=${encodeURIComponent(key)}&request_id=${encodeURIComponent(request_id)}&qr=${encodeURIComponent(connURI)}`
 		}));
 	}
 
