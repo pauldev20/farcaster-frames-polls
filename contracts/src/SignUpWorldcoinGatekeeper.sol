@@ -64,7 +64,7 @@ contract SignUpWorldcoinGatekeeper is SignUpGatekeeper, Ownable {
 
         IWorldID(worldId).verifyProof(
             merkle_root,
-            1, // set to "1" in the constructor
+            1, // always 1 since its orb verification
             abi.encodePacked(signal).hashToField(),
             nullifierHash,
             externalNullifierHash,

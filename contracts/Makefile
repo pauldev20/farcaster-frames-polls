@@ -2,6 +2,11 @@ RPC="https://sepolia.base.org"
 
 none:
 
+deploy-gatekeeper:
+	forge script DeployGatekeeper --fork-url ${RPC}
+set-maci-gatekeeper:
+	forge script SetMaciGatekeeper --fork-url ${RPC}
+
 
 test-gatekeeper:
 	forge test --match-test "testGatekeeper" --fork-url ${RPC} -vvvv

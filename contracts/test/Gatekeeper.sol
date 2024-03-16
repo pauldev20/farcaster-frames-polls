@@ -26,7 +26,7 @@ contract SignUpWorldcoinGatekeeperTest is Test {
         gatekeeper.register(address(0xc01a), data);
     }
 
-    function generateData() public view returns(bytes memory) {
+    function generateData() public pure returns(bytes memory) {
         address signal = 0x4B4ddb5A02b0B6b14274013d6ba13A3fBd65D5d3;
         uint256 merkle_root = 0x1e28120c18d4a1025fbcbc2401462cfce8406fc87b7c8a0468c474649687df70;
         uint256 nullifierHash = 0x21ea8bf989c364c27b5baf90516fe582b8870c166db90b6a17840a46add5b1e3;
