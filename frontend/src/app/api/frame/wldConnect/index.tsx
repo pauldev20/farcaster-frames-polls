@@ -10,6 +10,12 @@ type BridgeResult =
 	| (Omit<ISuccessResult, 'verification_level'> & { credential_type: CredentialType })
 	| { error_code: AppErrorCodes };
 
+const createURI = (request_id: string, key: string, bridge_url: string = DEFAULT_BRIDGE_URL) => {
+	return `https://worldcoin.org/verify?t=wld&i=${request_id}&k=${encodeURIComponent(
+		key
+	)}${bridge_url && bridge_url !== DEFAULT_BRIDGE_URL ? `&b=${encodeURIComponent(bridge_url)}` : ''}`
+}
+
 const createVerification = async ({
 	app_id,
 	action_description,
@@ -57,9 +63,7 @@ const createVerification = async ({
 	}
 
 	return {
-		connectionURI: `https://worldcoin.org/verify?t=wld&i=${request_id}&k=${encodeURIComponent(
-			await exportKey(key)
-		)}${bridge_url && bridge_url !== DEFAULT_BRIDGE_URL ? `&b=${encodeURIComponent(bridge_url)}` : ''}`,
+		connectionURI: createURI(request_id, await exportKey(key)),
 		request_id: request_id,
 		key: (await exportKey(key)).toString()
 	};
@@ -103,4 +107,4 @@ const checkVerification = async ({
 	};
 }
 
-export { createVerification, checkVerification };
+export { createURI, createVerification, checkVerification };
