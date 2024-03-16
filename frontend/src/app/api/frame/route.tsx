@@ -68,9 +68,12 @@ export async function POST(request: Request) {
 
 	/* ----------------------------- Register Action ---------------------------- */
 	if (action === "register") {
+		const body: FrameRequest = await request.json();
+		const { isValid, message } = await getFrameMessage(body);
+		console.log(isValid, message);
+
 		if (searchParams.get("post") == "true") {
 			// check if validation was successfull - redirect, else show again
-			const body: FrameRequest = await request.json();
 
 			/* ------------------------------ Check WorldID ----------------------------- */
 			const key = decodeURIComponent(searchParams.get("key") || "");
@@ -159,15 +162,4 @@ export async function POST(request: Request) {
 	// check if registered
 	// check if already voted
 	return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=register`, request.url));
-
-	// return new NextResponse(getFrameHtmlResponse({
-	// 	buttons: [
-	// 		{
-	// 			label: `View Smart Account`,
-	// 			action: "post_redirect" // @todo post_redirect not working??
-	// 		},
-	// 	],
-	// 	image: `${process.env['HOST']}/api/frame?id=1234&action=vote`,
-	// 	post_url: `${process.env['HOST']}/api/frame?id=${id}`,
-	// }));
 }
