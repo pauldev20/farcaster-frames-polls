@@ -1,6 +1,6 @@
-[submodule "contracts/lib/maci"]
-	path = contracts/lib/maci
-	url = https://github.com/privacy-scaling-explorations/maci
-[submodule "contracts/lib/openzeppelin-contracts"]
-	path = contracts/lib/openzeppelin-contracts
-	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "contracts/lib/forge-std"]
+	path = contracts/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "contracts/lib/world-id-onchain-template"]
+	path = contracts/lib/world-id-onchain-template
+	url = https://github.com/worldcoin/world-id-onchain-template
