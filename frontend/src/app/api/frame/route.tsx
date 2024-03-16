@@ -1,7 +1,9 @@
 import { FrameRequest, getFrameHtmlResponse, getFrameMessage } from '@coinbase/onchainkit';
+import { Options, QRCodeCanvas } from '@loskir/styled-qr-code-node';
 import { NextResponse } from 'next/server';
 import { ImageResponse } from "next/og";
-import Image from "next/image";
+import { createConnectURI } from './wldConnect';
+import { VerificationLevel } from '@worldcoin/idkit-core';
 
 export async function GET(request: Request) {
 	const { searchParams } = new URL(request.url);
@@ -10,8 +12,40 @@ export async function GET(request: Request) {
 
 	/* ---------------------- Registration and Verification --------------------- */
 	if (screen === "register") {
-		return new ImageResponse((<div style={{backgroundColor: "black", display: "flex", width: "100%", height: "100%", color: "white", justifyContent: "flex-start", alignItems: "center", flexDirection: "column"}}>
-			<h1 style={{fontSize: "50px"}}>Scan QR</h1>
+		const connectorURI = await createConnectURI({
+			app_id: "app_ccc994b5ef2d751551e1a0552d30e8e4",
+			action: "anonymous-vote",
+			verification_level: VerificationLevel.Orb,
+			signal: ""
+		});
+		console.log(connectorURI);
+
+		const qrCode = new QRCodeCanvas({
+			width: 400,
+			height: 400,
+			data: connectorURI || "https://worldcoin.org",
+			image: "http://" + process.env["HOST"] + "/wldicon.png",
+			dotsOptions: {
+				color: "#ffffff",
+				type: "rounded",
+			},
+			backgroundOptions: {
+				color: "#00000000",
+			},
+			imageOptions: {
+				hideBackgroundDots: true,
+				imageSize: 0.3,
+				margin: 10,
+			},
+		});
+		const qrurl = await qrCode.toDataUrl("png", {quality: 1, density: 4});
+
+		return new ImageResponse((<div style={{backgroundColor: "black", display: "flex", width: "100%", height: "100%", color: "white", justifyContent: "center", alignItems: "center", gap: "15px"}}>
+			{/* eslint-disable-next-line @next/next/no-img-element */}
+			<img src={qrurl} alt="QRCode" style={{height: "400px", width: "400px"}}/>
+			<div style={{display: "flex", justifyContent: "center", alignItems: "center", textWrap: "wrap"}}>
+				<h1 style={{maxWidth: "500px", overflowWrap: "break-word", textAlign: "center"}}>Please scan with your World ID App to verify. Then press the Submit Button</h1>
+			</div>
 		</div>), {width: 1200, height: 630});
 	}
 
@@ -61,7 +95,7 @@ export async function POST(request: Request) {
 		return new NextResponse(getFrameHtmlResponse({
 			buttons: [
 				{
-					label: `Refresh`,
+					label: `Submit`,
 					action: "post"
 				},
 			],

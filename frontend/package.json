@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@coinbase/onchainkit": "^0.10.2",
+    "@loskir/styled-qr-code-node": "^1.5.1",
     "@nextui-org/react": "^2.2.10",
+    "@worldcoin/idkit-core": "^1.1.4",
     "framer-motion": "^11.0.14",
     "next": "14.1.3",
     "react": "^18",
