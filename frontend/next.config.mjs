@@ -1,10 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-	webpack: (config, { isServer }) => {
-		if (isServer) {
-		  config.externals.push("skia-canvas");
-		}
-	
+	webpack: (config, options) => {
+		config.module.rules.push({
+		  test: /\.node$/,
+		  loader: 'node-loader'
+		})
+		config.module = {
+			...config.module,
+			exprContextCritical: false,
+		};
+
 		return config;
 	},
 };
