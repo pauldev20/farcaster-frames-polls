@@ -1,26 +1,10 @@
 import { FrameRequest, getFrameHtmlResponse, getFrameMessage } from '@coinbase/onchainkit';
 import { createVerification, checkVerification } from './wldConnect';
+import { createAccount, getAccount } from './safeAccount';
 import { VerificationLevel } from '@worldcoin/idkit-core';
 import { NextResponse } from 'next/server';
 import { ImageResponse } from "next/og";
 import qrcode from "qrcode";
-import { createPimlicoPaymasterClient } from 'permissionless/clients/pimlico';
-import { Address, createPublicClient, http } from 'viem';
-import { baseSepolia } from 'viem/chains'
-import { ENTRYPOINT_ADDRESS_V06 } from 'permissionless';
-import { privateKeyToSafeSmartAccount } from 'permissionless/accounts';
-
-
-const paymasterUrl = `https://api.pimlico.io/v2/base-sepolia/rpc?apikey=${process.env['PIMLICO_API_KEY']}`
-const bundlerUrl = `https://api.pimlico.io/v1/base-sepolia/rpc?apikey=${process.env['PIMLICO_API_KEY']}`
-const publicClient = createPublicClient({
-	transport: http("https://rpc.ankr.com/eth_sepolia"),
-});
-const paymasterClient = createPimlicoPaymasterClient({
-	entryPoint: ENTRYPOINT_ADDRESS_V06,
-	transport: http(paymasterUrl),
-	chain: baseSepolia
-})
 
 export async function GET(request: Request) {
 	const { searchParams } = new URL(request.url);
@@ -83,14 +67,14 @@ export async function POST(request: Request) {
 	const action = searchParams.get('action');
 	const id = searchParams.get('id');
 
+	const body: FrameRequest = await request.json();
+	const { isValid, message } = await getFrameMessage(body);
+	if (!isValid || !message) {
+		throw new Error("Invalid Frame Request");
+	}
+
 	/* ----------------------------- Register Action ---------------------------- */
 	if (action === "register") {
-		const body: FrameRequest = await request.json();
-		const { isValid, message } = await getFrameMessage(body);
-		if (!isValid || !message) {
-			throw new Error("Invalid Frame Request");
-		}
-
 		if (searchParams.get("post") == "true") {
 			// check if validation was successfull - redirect, else show again
 
@@ -102,15 +86,10 @@ export async function POST(request: Request) {
 				key: key
 			});
 
-			const account = await privateKeyToSafeSmartAccount(publicClient, {
-				privateKey: process.env["PRIVATE_KEY"] as Address,
-				safeVersion: "1.4.1", // simple version
-				entryPoint: ENTRYPOINT_ADDRESS_V06, // global entrypoint
-				saltNonce: BigInt(message.interactor.fid)
-			})
-			console.log(account);
-
 			if (status == true) {
+				/* ------------------------------- Deploy Safe ------------------------------ */
+				await createAccount(message.interactor.fid);
+
 				return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=vote`, request.url));
 			}
 		}
@@ -186,7 +165,9 @@ export async function POST(request: Request) {
 
 	/* ----------------------------- Default Action ----------------------------- */
 	// check if poll ended
-	// check if registered
-	// check if already voted
-	return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=register`, request.url));
+	const { deployed } = await getAccount(message.interactor.fid);
+	if (!deployed) {
+		return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=register`, request.url));
+	}
+	return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=vote`, request.url));
 }
