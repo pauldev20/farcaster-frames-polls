@@ -6,7 +6,8 @@ const { exec } = require('child_process');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const coord_priv=macisk.e6f574787e05b5d7622e8b648be71bfc2120ba6230e107e1e581a698791335be
+const coord_priv="macisk.e6f574787e05b5d7622e8b648be71bfc2120ba6230e107e1e581a698791335be"
+const coord_pub="macipk.398a064125bfa6572b9fac45e9157546fb61df9aa9b721c2e8da32b07abf83a7"
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -36,7 +37,7 @@ app.post('/create', (req, res) => {
     polls.push(poll);
 
     exec('node ../../votelik/maci/cli/build/ts/index.js deployPoll \
-    -pk macisk.e6f574787e05b5d7622e8b648be71bfc2120ba6230e107e1e581a698791335be \
+    -pk macipk.398a064125bfa6572b9fac45e9157546fb61df9aa9b721c2e8da32b07abf83a7 \
     -t 300 -i 1 -m 2 -b 1 -v ' + options.length, (error, stdout, stderr) => {
         if (error) {
           console.error(`Error: ${error.message}`);
