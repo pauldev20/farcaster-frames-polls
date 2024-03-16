@@ -89,7 +89,7 @@ const checkVerification = async ({
 		await decryptResponse(await loadKey(key), buffer_decode(response.iv), response.payload)
 	) as BridgeResult;
 	if ('error_code' in result) {
-		throw new Error(`Failed to check verification ${result.error_code}`);
+		throw new Error('Failed to check verification');
 	}
 	if ('credential_type' in result) {
 		result = {
