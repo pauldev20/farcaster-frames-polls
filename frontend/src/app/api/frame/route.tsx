@@ -1,7 +1,26 @@
 import { FrameRequest, getFrameHtmlResponse, getFrameMessage } from '@coinbase/onchainkit';
+import { createVerification, checkVerification } from './wldConnect';
+import { VerificationLevel } from '@worldcoin/idkit-core';
 import { NextResponse } from 'next/server';
 import { ImageResponse } from "next/og";
-import Image from "next/image";
+import qrcode from "qrcode";
+import { createPimlicoPaymasterClient } from 'permissionless/clients/pimlico';
+import { Address, createPublicClient, http } from 'viem';
+import { baseSepolia } from 'viem/chains'
+import { ENTRYPOINT_ADDRESS_V06 } from 'permissionless';
+import { privateKeyToSafeSmartAccount } from 'permissionless/accounts';
+
+
+const paymasterUrl = `https://api.pimlico.io/v2/base-sepolia/rpc?apikey=${process.env['PIMLICO_API_KEY']}`
+const bundlerUrl = `https://api.pimlico.io/v1/base-sepolia/rpc?apikey=${process.env['PIMLICO_API_KEY']}`
+const publicClient = createPublicClient({
+	transport: http("https://rpc.ankr.com/eth_sepolia"),
+});
+const paymasterClient = createPimlicoPaymasterClient({
+	entryPoint: ENTRYPOINT_ADDRESS_V06,
+	transport: http(paymasterUrl),
+	chain: baseSepolia
+})
 
 export async function GET(request: Request) {
 	const { searchParams } = new URL(request.url);
@@ -10,8 +29,21 @@ export async function GET(request: Request) {
 
 	/* ---------------------- Registration and Verification --------------------- */
 	if (screen === "register") {
-		return new ImageResponse((<div style={{backgroundColor: "black", display: "flex", width: "100%", height: "100%", color: "white", justifyContent: "flex-start", alignItems: "center", flexDirection: "column"}}>
-			<h1 style={{fontSize: "50px"}}>Scan QR</h1>
+		const qrCode = await qrcode.toDataURL(decodeURIComponent(searchParams.get("qr")|| ""), {
+			width: 500,
+			margin: 1,
+			color: {
+				dark: "#ffffff",
+				light: "#00000000"
+			}
+		});
+
+		return new ImageResponse((<div style={{backgroundColor: "black", display: "flex", width: "100%", height: "100%", color: "white", justifyContent: "center", alignItems: "center", gap: "15px"}}>
+			{/* eslint-disable-next-line @next/next/no-img-element */}
+			<img src={qrCode} alt="QRCode" style={{height: "400px", width: "400px"}}/>
+			<div style={{display: "flex", justifyContent: "center", alignItems: "center", textWrap: "wrap"}}>
+				<h1 style={{maxWidth: "500px", overflowWrap: "break-word", textAlign: "center"}}>Please scan with your World ID App to verify. Then press the Submit Button</h1>
+			</div>
 		</div>), {width: 1200, height: 630});
 	}
 
@@ -53,20 +85,50 @@ export async function POST(request: Request) {
 
 	/* ----------------------------- Register Action ---------------------------- */
 	if (action === "register") {
+		const body: FrameRequest = await request.json();
+		const { isValid, message } = await getFrameMessage(body);
+		if (!isValid || !message) {
+			throw new Error("Invalid Frame Request");
+		}
+
 		if (searchParams.get("post") == "true") {
 			// check if validation was successfull - redirect, else show again
-			const body: FrameRequest = await request.json();
-			return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=vote`, request.url));
+
+			/* ------------------------------ Check WorldID ----------------------------- */
+			const key = decodeURIComponent(searchParams.get("key") || "");
+			const request_id = decodeURIComponent(searchParams.get("request_id") || "");
+			const { status, result } = await checkVerification({
+				request_id: request_id,
+				key: key
+			});
+
+			const account = await privateKeyToSafeSmartAccount(publicClient, {
+				privateKey: process.env["PRIVATE_KEY"] as Address,
+				safeVersion: "1.4.1", // simple version
+				entryPoint: ENTRYPOINT_ADDRESS_V06, // global entrypoint
+				saltNonce: BigInt(message.interactor.fid)
+			})
+			console.log(account);
+
+			if (status == true) {
+				return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=vote`, request.url));
+			}
 		}
+		const verification = await createVerification({
+			app_id: "app_ccc994b5ef2d751551e1a0552d30e8e4",
+			action: "anonymous-vote",
+			verification_level: VerificationLevel.Orb,
+			signal: message.interactor.fid.toString()
+		});
 		return new NextResponse(getFrameHtmlResponse({
 			buttons: [
 				{
-					label: `Refresh`,
+					label: `Submit`,
 					action: "post"
 				},
 			],
-			image: `${process.env['HOST']}/api/frame?id=${id}&screen=register`,
-			post_url: `${process.env['HOST']}/api/frame?id=${id}&action=register&post=true`
+			image: `${process.env['HOST']}/api/frame?id=${id}&screen=register&qr=${encodeURIComponent(verification.connectionURI)}`,
+			post_url: `${process.env['HOST']}/api/frame?id=${id}&action=register&post=true&key=${encodeURIComponent(verification.key)}&request_id=${encodeURIComponent(verification.request_id)}`
 		}));
 	}
 
@@ -127,15 +189,4 @@ export async function POST(request: Request) {
 	// check if registered
 	// check if already voted
 	return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=register`, request.url));
-
-	// return new NextResponse(getFrameHtmlResponse({
-	// 	buttons: [
-	// 		{
-	// 			label: `View Smart Account`,
-	// 			action: "post_redirect" // @todo post_redirect not working??
-	// 		},
-	// 	],
-	// 	image: `${process.env['HOST']}/api/frame?id=1234&action=vote`,
-	// 	post_url: `${process.env['HOST']}/api/frame?id=${id}`,
-	// }));
 }
