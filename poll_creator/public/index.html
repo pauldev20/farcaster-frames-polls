@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Poll</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Set the background color of the entire HTML document to black */
+        html {
+            background-color: #000000;
+            color: #ffffff; /* Light text color */
+        }
+        /* Center the form */
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        /* Add some padding */
+        .form-container {
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #343a40; /* Dark background color */
+            color: #ffffff; /* Light text color */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        /* Style form labels and inputs */
+        .form-group label {
+            color: #ffffff; /* Light text color */
+        }
+        .form-group input {
+            background-color: #454d55; /* Dark input background color */
+            color: #ffffff; /* Light text color */
+        }
+        /* Style the submit button */
+        .btn-primary {
+            background-color: #007bff; /* Primary button color */
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3; /* Darker hover color */
+            border-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1 class="text-center">Create Poll</h1>
+            <form action="/create" method="post" id="pollForm">
+                <div class="form-group">
+                    <label for="heading">Poll Heading:</label>
+                    <input type="text" id="heading" name="heading" class="form-control" required>
+                </div>
+                <div class="form-group" id="optionsContainer">
+                    <label for="option1">Option 1:</label>
+                    <input type="text" id="option1" name="options[]" class="form-control" required>
+                </div>
+                <div class="form-group" id="addOptionContainer">
+                    <button type="button" class="btn btn-secondary" id="addOptionBtn">Add Option</button>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Poll</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Include Bootstrap JS (optional) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const optionsContainer = document.getElementById("optionsContainer");
+            const addOptionBtn = document.getElementById("addOptionBtn");
+
+            let optionIndex = 2; // Start with the third option
+
+            addOptionBtn.addEventListener("click", function() {
+                const newFormGroup = document.createElement("div");
+                newFormGroup.classList.add("form-group");
+
+                const newLabel = document.createElement("label");
+                newLabel.setAttribute("for", "option" + optionIndex);
+                newLabel.textContent = "Option " + optionIndex + ":";
+
+                const newInput = document.createElement("input");
+                newInput.setAttribute("type", "text");
+                newInput.setAttribute("id", "option" + optionIndex);
+                newInput.setAttribute("name", "options[]");
+                newInput.classList.add("form-control");
+                newInput.required = true;
+
+                newFormGroup.appendChild(newLabel);
+                newFormGroup.appendChild(newInput);
+
+                optionsContainer.appendChild(newFormGroup);
+
+                optionIndex++;
+            });
+        });
+    </script>
+</body>
+</html>
