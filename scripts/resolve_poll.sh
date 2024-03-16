@@ -5,7 +5,14 @@
 BLUE='\e[0;34m'
 RESET='\e[0m'
 
-CLI_DIR='../'
+POLL_ID=$1
+
+if [ -z "$1" ]; then
+    echo "Missing poll id parameter. usage: sh resolve_poll.sh [poll_id]"
+    exit
+fi
+
+CLI_DIR='../../votelik/maci/cli'
 cd $CLI_DIR
 
 # seed=ce29af1e23aaceb1eb00721501ae7c42f56171da641346da19bd813b76d67c08
@@ -76,8 +83,8 @@ node build/ts/index.js timeTravel -s 1001
 
 # resolving
 echo "$BLUE merging signups and messages... $RESET"
-node build/ts/index.js mergeSignups -o 0
-node build/ts/index.js mergeMessages -o 0
+node build/ts/index.js mergeSignups -o $POLL_ID
+node build/ts/index.js mergeMessages -o $POLL_ID
 
 # echo "$BLUE genLocalState $RESET"
 # node build/ts/index.js genLocalState \
@@ -106,7 +113,7 @@ node build/ts/index.js mergeMessages -o 0
 echo "$BLUE genProofs $RESET"
 node build/ts/index.js genProofs \
     -sk $coord_priv \
-    --poll-id 0 \
+    --poll-id $POLL_ID \
     --process-zkey ./zkeys/ProcessMessages_10-2-1-2_test/ProcessMessages_10-2-1-2_test.0.zkey \
     --tally-zkey ./zkeys/TallyVotes_10-1-2_test/TallyVotes_10-1-2_test.0.zkey \
     --tally-file tally.json \
@@ -117,10 +124,10 @@ node build/ts/index.js genProofs \
 
 echo "$BLUE proveOnChain $RESET"
 node build/ts/index.js proveOnChain \
-    -o 0 \
+    -o $POLL_ID \
     -f proofs/
 
 echo "$BLUE verify $RESET"
 node build/ts/index.js verify \
-    -o 0 \
+    -o $POLL_ID \
     -t tally.json
