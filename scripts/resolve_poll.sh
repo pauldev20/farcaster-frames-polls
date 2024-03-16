@@ -23,12 +23,12 @@ coord_pub=macipk.398a064125bfa6572b9fac45e9157546fb61df9aa9b721c2e8da32b07abf83a
 coord_priv=macisk.e6f574787e05b5d7622e8b648be71bfc2120ba6230e107e1e581a698791335be
 
 
-node build/ts/index.js timeTravel -s 1001
+# node build/ts/index.js timeTravel -s 1001
 
-# resolving
-echo "$BLUE merging signups and messages... $RESET"
-node build/ts/index.js mergeSignups -o $POLL_ID \
-node build/ts/index.js mergeMessages -o $POLL_ID \
+# # resolving
+# echo "$BLUE merging signups and messages... $RESET"
+# node build/ts/index.js mergeSignups -o $POLL_ID
+# node build/ts/index.js mergeMessages -o $POLL_ID
 
 # echo "$BLUE genLocalState $RESET"
 # node build/ts/index.js genLocalState \
@@ -54,17 +54,18 @@ node build/ts/index.js mergeMessages -o $POLL_ID \
 #     -uq false
 
 # proof generation
-echo "$BLUE genProofs $RESET"
-node build/ts/index.js genProofs \
-    -sk $coord_priv \
-    --poll-id $POLL_ID \
-    --process-zkey ./zkeys/ProcessMessages_10-2-1-2_test/ProcessMessages_10-2-1-2_test.0.zkey \
-    --tally-zkey ./zkeys/TallyVotes_10-1-2_test/TallyVotes_10-1-2_test.0.zkey \
-    --tally-file tally.json \
-    --output proofs/ \
-    -tw ./zkeys/TallyVotes_10-1-2_test/TallyVotes_10-1-2_test_js/TallyVotes_10-1-2_test.wasm \
-    -pw ./zkeys/ProcessMessages_10-2-1-2_test/ProcessMessages_10-2-1-2_test_js/ProcessMessages_10-2-1-2_test.wasm \
-    -w true \
+# echo "$BLUE genProofs $RESET"
+# node build/ts/index.js genProofs \
+#     -sk $coord_priv \
+#     --poll-id $POLL_ID \
+#     --process-zkey ./zkeys/ProcessMessages_10-2-1-2_test/ProcessMessages_10-2-1-2_test.0.zkey \
+#     --tally-zkey ./zkeys/TallyVotes_10-1-2_test/TallyVotes_10-1-2_test.0.zkey \
+#     --tally-file tally.json \
+#     --output proofs/ \
+#     -tw ./zkeys/TallyVotes_10-1-2_test/TallyVotes_10-1-2_test_js/TallyVotes_10-1-2_test.wasm \
+#     -pw ./zkeys/ProcessMessages_10-2-1-2_test/ProcessMessages_10-2-1-2_test_js/ProcessMessages_10-2-1-2_test.wasm \
+#     -w true \
+#     --start-block 7426694
 
 echo "$BLUE proveOnChain $RESET"
 node build/ts/index.js proveOnChain \
