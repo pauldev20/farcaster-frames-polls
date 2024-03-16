@@ -31,15 +31,31 @@ contract WorldCoinExample is Test {
         uint256 merkle_root = 0x1e28120c18d4a1025fbcbc2401462cfce8406fc87b7c8a0468c474649687df70;
         uint256 nullifierHash = 0x21ea8bf989c364c27b5baf90516fe582b8870c166db90b6a17840a46add5b1e3;
         uint256[8] memory proof;
-        proof[0] = 0x056d319a4cafcce6e18df70fe7304dfd96dc4d98fbcca3738651aea79d317c53;
-        proof[1] = 0x270b895a890a196bc0aa7435845e0d476f1a528623381b7c8cdd36f42e791f2b;
-        proof[2] = 0x1b879e88ff6f1cee7116d71a80e52e0d77b90113b2dd0ddd02a859ddc7cc383a;
-        proof[3] = 0x021d81ffb22658f6ca33ca4f5e838f3982e10ee6c86d7876bd8d508247b3c731;
-        proof[4] = 0x0674120b44b050db94b3889e896d969baab96730793eada911442d735c04e562;
-        proof[5] = 0x124c9b446194b76a66b3509141c0d871200ad3424f8772218a95b396bd5c6ab9;
-        proof[6] = 0x05712406a76fd420b14909687ac7a5279ffbb96d7bbb5ec62a3d2734d57e39e8;
-        proof[7] = 0x227337049e00603d9817f3b7831da58864eb126ae909db2c63275b772958799c;
-        
+        proof[
+            0
+        ] = 0x056d319a4cafcce6e18df70fe7304dfd96dc4d98fbcca3738651aea79d317c53;
+        proof[
+            1
+        ] = 0x270b895a890a196bc0aa7435845e0d476f1a528623381b7c8cdd36f42e791f2b;
+        proof[
+            2
+        ] = 0x1b879e88ff6f1cee7116d71a80e52e0d77b90113b2dd0ddd02a859ddc7cc383a;
+        proof[
+            3
+        ] = 0x021d81ffb22658f6ca33ca4f5e838f3982e10ee6c86d7876bd8d508247b3c731;
+        proof[
+            4
+        ] = 0x0674120b44b050db94b3889e896d969baab96730793eada911442d735c04e562;
+        proof[
+            5
+        ] = 0x124c9b446194b76a66b3509141c0d871200ad3424f8772218a95b396bd5c6ab9;
+        proof[
+            6
+        ] = 0x05712406a76fd420b14909687ac7a5279ffbb96d7bbb5ec62a3d2734d57e39e8;
+        proof[
+            7
+        ] = 0x227337049e00603d9817f3b7831da58864eb126ae909db2c63275b772958799c;
+
         verifyAndExecute(signal, merkle_root, nullifierHash, proof);
     }
 
@@ -48,31 +64,57 @@ contract WorldCoinExample is Test {
         uint256 merkle_root = 0x1e28120c18d4a1025fbcbc2401462cfce8406fc87b7c8a0468c474649687df70;
         uint256 nullifierHash = 0x21ea8bf989c364c27b5baf90516fe582b8870c166db90b6a17840a46add5b1e3;
         uint256[8] memory proof;
-        proof[0] = 0x056d319a4cafcce6e18df70fe7304dfd96dc4d98fbcca3738651aea79d317c53;
-        proof[1] = 0x270b895a890a196bc0aa7435845e0d476f1a528623381b7c8cdd36f42e791f2b;
-        proof[2] = 0x1b879e88ff6f1cee7116d71a80e52e0d77b90113b2dd0ddd02a859ddc7cc383a;
-        proof[3] = 0x021d81ffb22658f6ca33ca4f5e838f3982e10ee6c86d7876bd8d508247b3c731;
-        proof[4] = 0x0674120b44b050db94b3889e896d969baab96730793eada911442d735c04e562;
-        proof[5] = 0x124c9b446194b76a66b3509141c0d871200ad3424f8772218a95b396bd5c6ab9;
-        proof[6] = 0x05712406a76fd420b14909687ac7a5279ffbb96d7bbb5ec62a3d2734d57e39e8;
-        proof[7] = 0x227337049e00603d9817f3b7831da58864eb126ae909db2c63275b772958799c;
-        
-        bytes memory data = abi.encode(signal, merkle_root, nullifierHash, proof);
+        proof[
+            0
+        ] = 0x056d319a4cafcce6e18df70fe7304dfd96dc4d98fbcca3738651aea79d317c53;
+        proof[
+            1
+        ] = 0x270b895a890a196bc0aa7435845e0d476f1a528623381b7c8cdd36f42e791f2b;
+        proof[
+            2
+        ] = 0x1b879e88ff6f1cee7116d71a80e52e0d77b90113b2dd0ddd02a859ddc7cc383a;
+        proof[
+            3
+        ] = 0x021d81ffb22658f6ca33ca4f5e838f3982e10ee6c86d7876bd8d508247b3c731;
+        proof[
+            4
+        ] = 0x0674120b44b050db94b3889e896d969baab96730793eada911442d735c04e562;
+        proof[
+            5
+        ] = 0x124c9b446194b76a66b3509141c0d871200ad3424f8772218a95b396bd5c6ab9;
+        proof[
+            6
+        ] = 0x05712406a76fd420b14909687ac7a5279ffbb96d7bbb5ec62a3d2734d57e39e8;
+        proof[
+            7
+        ] = 0x227337049e00603d9817f3b7831da58864eb126ae909db2c63275b772958799c;
+
+        bytes memory data = abi.encode(
+            signal,
+            merkle_root,
+            nullifierHash,
+            proof
+        );
         console.logBytes(data);
         decodeAndVerify(data);
     }
 
     function decodeAndVerify(bytes memory data) public view {
-        (address signal, uint256 merkle_root, uint256 nullifierHash, uint256[8] memory proof) = abi.decode(data, (address, uint256, uint256, uint256[8]));
+        (
+            address signal,
+            uint256 merkle_root,
+            uint256 nullifierHash,
+            uint256[8] memory proof
+        ) = abi.decode(data, (address, uint256, uint256, uint256[8]));
         verifyAndExecute(signal, merkle_root, nullifierHash, proof);
     }
 
-    function verifyAndExecute (
-    address signal,
-    uint256 root,
-    uint256 nullifierHash,
-    uint256[8] memory proof
-    ) view internal {
+    function verifyAndExecute(
+        address signal,
+        uint256 root,
+        uint256 nullifierHash,
+        uint256[8] memory proof
+    ) internal view {
         // First, we make sure this person hasn't done this before
         // if (nullifierHashes[nullifierHash]) revert InvalidNullifier();
 
