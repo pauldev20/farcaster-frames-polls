@@ -8,9 +8,9 @@ const createFarcasterData = (id: string) => {
 		},
 		other: {
 			"fc:frame": "vNext",
-			"fc:frame:post_url": `${process.env['HOST']}/api/frame?id=${id}`,
+			"fc:frame:post_url": `${process.env['HOST']}/api/frame?id=${id}&action=start`,
 			"fc:frame:image": `${process.env['HOST']}/api/frame?id=${id}`,
-			"fc:frame:button:1": "Vote"
+			"fc:frame:button:1": "Start Vote"
 		}
 	}
 }
