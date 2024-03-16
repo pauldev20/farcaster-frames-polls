@@ -6,9 +6,6 @@ import { NextResponse } from 'next/server';
 import { ImageResponse } from "next/og";
 import qrcode from "qrcode";
 
-export const runtime = 'edge';
-export const dynamic = 'force-dynamic';
-
 export async function GET(request: Request) {
 	const { searchParams } = new URL(request.url);
 	const screen = searchParams.get('screen');
