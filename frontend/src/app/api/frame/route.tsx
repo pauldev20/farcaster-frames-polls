@@ -19,10 +19,6 @@ export async function GET(request: Request) {
 		const qrCode = await qrcode.toDataURL(createURI(request_id, key), {
 			width: 500,
 			margin: 2,
-			// color: {
-			// 	dark: "#ffffff",
-			// 	light: "#00000000"
-			// },
 			errorCorrectionLevel: "H"
 		});
 
