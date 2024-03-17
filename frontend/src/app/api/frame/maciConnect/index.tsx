@@ -1,27 +1,19 @@
 import { Keypair, PCommand, PrivKey, PubKey } from "maci-domainobjs";
-import { walletClientToSmartAccountSigner } from "permissionless";
 import { createAccount, getAccount } from "../safeAccount";
 import maciFactory from "./maciFactory.json";
 import pollFactory from "./pollFactory.json";
 import { genRandomSalt } from "maci-crypto";
 import { ethers } from "ethers";
 
-const MACI_ADDRESS = "0x10c60c92b24b6bB1Cd620935cc4627C8Fe8cfC3B";
+const MACI_ADDRESS = "0xFa23A4ecC40d4596f3B041234Ce34e78eE77c2eD";
 const RPC_PROVIDER = "https://base-sepolia.g.alchemy.com/v2/xC7gy-WyxYdV48GlxEyP4n6xuVfYRTK3";
 
+/* -------------------------------------------------------------------------- */
+/*                                   Helpers                                  */
+/* -------------------------------------------------------------------------- */
 const createKeypair = (seed: bigint) => {
 	const SNARK_FIELD_SIZE = BigInt('21888242871839275222246405745257275088548364400416034343698204186575808495617');
 	return new Keypair(seed ? new PrivKey(seed % SNARK_FIELD_SIZE) : undefined);
-}
-
-const checkIfRegistered = async (publicKey: PubKey) => {
-	const pubKey = publicKey.asContractParam();
-	const provider = new ethers.JsonRpcProvider(RPC_PROVIDER);
-	const maciContract = new ethers.Contract(MACI_ADDRESS, maciFactory, provider);
-	const events = await maciContract.queryFilter(maciContract.filters.SignUp(undefined, pubKey.x, pubKey.y));
-	const stateIndex = (events[0] as any).args[0].toString() as string | undefined;
-  	// const voiceCredits = (events[0] as any).args[3].toString() as string | undefined;
-	return stateIndex !== undefined;
 }
 
 const encodeWldData = (signal: string, merkleRoot: string, nullifierHash: string, proof: string): string => {
@@ -33,36 +25,54 @@ const encodeWldData = (signal: string, merkleRoot: string, nullifierHash: string
 	]);
 }
 
-const signup = async (seed: number) => {
-	const keypair = createKeypair(BigInt(seed));
+
+/* -------------------------------------------------------------------------- */
+/*                                 MACI Calls                                 */
+/* -------------------------------------------------------------------------- */
+const checkIfRegistered = async (fid: number) => {
+	const keypair = createKeypair(BigInt(fid));
+	const pubKey = keypair.pubKey.asContractParam();
+	const provider = new ethers.JsonRpcProvider(RPC_PROVIDER);
+	const maciContract = new ethers.Contract(MACI_ADDRESS, maciFactory, provider);
+	const events = await maciContract.queryFilter(maciContract.filters.SignUp(undefined, pubKey.x, pubKey.y));
+	if (events.length === 0) {
+		return false;
+	}
+	const stateIndex = (events[0] as any).args[0].toString() as string | undefined;
+  	// const voiceCredits = (events[0] as any).args[3].toString() as string | undefined;
+	return stateIndex !== undefined;
+}
+
+const signUp = async (fid: number, merkleRoot: string, nullifierHash: string, proof: string) => {
+	const keypair = createKeypair(BigInt(fid));
 	let account;
-	const { deployed, accountClient } = await getAccount(seed);
+	const { deployed, accountClient } = await getAccount(fid);
 	if (!deployed) {
-		account = await createAccount(seed);
+		account = await createAccount(fid);
 	} else {
 		account = accountClient;
 	}
-	const DEFAULT_IVCP_DATA = "0x0000000000000000000000000000000000000000000000000000000000000000"; 
-	const tx = await accountClient.writeContract({
+	const DEFAULT_IVCP_DATA = "0x0000000000000000000000000000000000000000000000000000000000000000";
+	const tx = await account.writeContract({
 		address: MACI_ADDRESS,
 		abi: maciFactory,
 		functionName: "signUp",
-		args: [keypair.pubKey.asContractParam(), encodeWldData(), DEFAULT_IVCP_DATA]
+		args: [keypair.pubKey.asContractParam(), encodeWldData(account.account.address, merkleRoot, nullifierHash, proof), DEFAULT_IVCP_DATA]
 	});
+	console.log(tx);
 }
 
-const publishVote = async (maciAddress: string, pollId: number, voteOptionIndex: number, seed: number) => {
+const publishVote = async (pollId: number, voteOptionIndex: number, seed: number) => {
 	const keypair = createKeypair(BigInt(seed));
 	const userSalt = genRandomSalt();
-	// const account = await createAccount(seed);
 
 	const provider = new ethers.JsonRpcProvider(RPC_PROVIDER);
-	const maciContract = new ethers.Contract(maciAddress, maciFactory, provider);
+	const maciContract = new ethers.Contract(MACI_ADDRESS, maciFactory, provider);
 	const pollAddress = await maciContract.getPoll(pollId);
 	const pollContract = new ethers.Contract(pollAddress, pollFactory, provider);
-	const maxValues = await pollContract.maxValues();
 	const coordinatorPubKeyResult = await pollContract.coordinatorPubKey();
-	console.log(ethers.toNumber(maxValues.maxVoteOptions), coordinatorPubKeyResult);
+	// const maxValues = await pollContract.maxValues();
+	// console.log(ethers.toNumber(maxValues.maxVoteOptions), coordinatorPubKeyResult);
 
 	const coordinatorPubKey = new PubKey([
 		BigInt(coordinatorPubKeyResult.x.toString()),
@@ -98,29 +108,42 @@ const publishVote = async (maciAddress: string, pollId: number, voteOptionIndex:
 	console.log(tx);
 }
 
+const getPoll = async (pollId: number) => {
+	const resp = fetch("http://168.119.232.46:3000/polls");
+	const data = await (await resp).json();
+	const filtered = data.filter((poll: any) => poll.id === pollId.toString());
+	if (filtered.length === 0) {
+		return undefined;
+	}
+	return filtered[0];
+}
+
+const isPollRunning = async (pollId: number) => {
+	const poll = await getPoll(pollId);
+	if (!poll) {
+		return undefined;
+	}
+	if ('tally' in poll) {
+		return false;
+	}
+	return true;
+}
+
+export { signUp, checkIfRegistered, publishVote };
+
 export const test = async () => {
-	/* ---------------------------- Generate Key Pair --------------------------- */
-	const keypair = createKeypair(BigInt(299123))
-	console.log(keypair.privKey.serialize());
-	console.log(keypair.pubKey.serialize());
-
-	// /* ----------------------------- Encode WLD Data ---------------------------- */
-	// console.log(encodeWldData(
-	// 	"0x4B4ddb5A02b0B6b14274013d6ba13A3fBd65D5d3",
-	// 	"0x1e28120c18d4a1025fbcbc2401462cfce8406fc87b7c8a0468c474649687df70",
-	// 	"0x21ea8bf989c364c27b5baf90516fe582b8870c166db90b6a17840a46add5b1e3",
-	// 	"0x056d319a4cafcce6e18df70fe7304dfd96dc4d98fbcca3738651aea79d317c53270b895a890a196bc0aa7435845e0d476f1a528623381b7c8cdd36f42e791f2b1b879e88ff6f1cee7116d71a80e52e0d77b90113b2dd0ddd02a859ddc7cc383a021d81ffb22658f6ca33ca4f5e838f3982e10ee6c86d7876bd8d508247b3c7310674120b44b050db94b3889e896d969baab96730793eada911442d735c04e562124c9b446194b76a66b3509141c0d871200ad3424f8772218a95b396bd5c6ab905712406a76fd420b14909687ac7a5279ffbb96d7bbb5ec62a3d2734d57e39e8227337049e00603d9817f3b7831da58864eb126ae909db2c63275b772958799c"
-	// ));
-
-	/* -------------------------------- Register -------------------------------- */
-
+	// /* -------------------------------- Register -------------------------------- */
+	// console.log(await signUp(299123, "0x4B4ddb5A02b0B6b14274013d6ba13A3fBd65D5d3", "0x1e28120c18d4a1025fbcbc2401462cfce8406fc87b7c8a0468c474649687df70", "0x03236ce6408f6b6b2c233f27ce7f82e0298522e07d839aba71025d77c936df71", "0x1372a2d4ced984879df1f82e701dd18a8345478b6e45551f0f12b1e8e8cfa8e213e016a53def05176936405396ca2f8e910f5fef23ed1303228b057b4ae8656005b8aa35534d506d8886f17d1cdde1d84e08ac3cfa691221a2bc944e7f7a2bc01fcf1cc6429b67da1b23762023b2c06a5012860748e91940e8f849718a1e19de2ad3475545d00f086cfba70ef18f402c0a4f53b144ac0a74303e536569317fcb20840d37cb1431b9ef76ca7170577ce49374f84a0f80ffedb3cd8bb54bc028400a365fcfc6308c1e8b782cfb9064d56a673acd9849d6ceda7907ffd826a43d8529c64acc8f1a16801eaf6b2bb7b4d5effd1939a5e18ca2bd0395d1a9f9ecb6a4"));
 
 	// /* ------------------------ Check if User Registered ------------------------ */
-	// console.log(await checkIfRegistered(keypair.pubKey));
+	// console.log(await checkIfRegistered(299123));
 
 	// /* ------------------------------ Publish Vote ------------------------------ */
-	// await publishVote(MACI_ADDRESS, 0, 0, 299123);
+	// await publishVote(2, 0, 299123);
 
-	// const provider = new ethers.JsonRpcProvider("http://168.119.232.46:8545/");
-	// console.log(await provider.getBlockNumber());
+	// /* -------------------------------- Get Poll -------------------------------- */
+	// console.log(await getPoll(1));
+
+	// /* ------------------------------- Is Running ------------------------------- */
+	// console.log(await isPollRunning(2));
 }
