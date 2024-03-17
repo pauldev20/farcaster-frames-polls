@@ -5,7 +5,7 @@ import pollFactory from "./pollFactory.json";
 import { genRandomSalt } from "maci-crypto";
 import { ethers } from "ethers";
 
-const MACI_ADDRESS = process.env["MACI_ADDRESS"] as string;
+const MACI_ADDRESS = "0x25c0275DE8945A5058C6DB77643591Ed574Ce6e1";
 const RPC_PROVIDER = "https://base-sepolia.g.alchemy.com/v2/xC7gy-WyxYdV48GlxEyP4n6xuVfYRTK3";
 
 /* -------------------------------------------------------------------------- */
@@ -53,7 +53,7 @@ const signUp = async (fid: number, merkleRoot: string, nullifierHash: string, pr
 	}
 	const DEFAULT_IVCP_DATA = "0x0000000000000000000000000000000000000000000000000000000000000000";
 	const tx = await account.writeContract({
-		address: MACI_ADDRESS as `0x${string}`,
+		address: MACI_ADDRESS,
 		abi: maciFactory,
 		functionName: "signUp",
 		args: [keypair.pubKey.asContractParam(), encodeWldData(account.account.address, merkleRoot, nullifierHash, proof), DEFAULT_IVCP_DATA]
