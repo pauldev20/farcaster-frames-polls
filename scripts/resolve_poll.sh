@@ -25,48 +25,25 @@ coord_priv=macisk.e6f574787e05b5d7622e8b648be71bfc2120ba6230e107e1e581a698791335
 
 # node build/ts/index.js timeTravel -s 1001
 
-# # resolving
-# echo "$BLUE merging signups and messages... $RESET"
-# node build/ts/index.js mergeSignups -o $POLL_ID
-# node build/ts/index.js mergeMessages -o $POLL_ID
-
-# echo "$BLUE genLocalState $RESET"
-# node build/ts/index.js genLocalState \
-#     --poll-id 0 \
-#     --output localState.json \
-#     --privkey macisk.e6f574787e05b5d7622e8b648be71bfc2120ba6230e107e1e581a698791335be \
-#     --blocks-per-batch 50
-
-
-# proof generation locally without quadratic voting
-# echo "$BLUE genProofs $RESET"
-# node build/ts/index.js genProofs \
-#     --privkey macisk.e6f574787e05b5d7622e8b648be71bfc2120ba6230e107e1e581a698791335be \
-#     --poll-id 0 \
-#     --rapidsnark ~/rapidsnark/build/prover \
-#     --process-witnessgen ./zkeys/ProcessMessages_10-2-1-2_test/ProcessMessages_10-2-1-2_test_cpp/ProcessMessages_10-2-1-2_test \
-#     --tally-witnessgen ./zkeys/TallyVotes_10-1-2_test/TallyVotes_10-1-2_test_cpp/TallyVotes_10-1-2_test \
-#     --process-zkey /zkeys/ProcessMessages_10-2-1-2_test/ProcessMessages_10-2-1-2_test.0.zkey \
-#     --tally-zkey ./zkeys/TallyVotes_10-1-2_test/TallyVotes_10-1-2_test.0.zkey \
-#     --tally-file tally.json \
-#     --output proofs/ \
-#     --state-file localState.json \
-#     -uq false
+# resolving
+echo "$BLUE merging signups and messages... $RESET"
+node build/ts/index.js mergeSignups -o $POLL_ID
+node build/ts/index.js mergeMessages -o $POLL_ID
 
 # proof generation
-# echo "$BLUE genProofs $RESET"
-# node build/ts/index.js genProofs \
-#     -sk $coord_priv \
-#     --poll-id $POLL_ID \
-#     --process-zkey ./zkeys/ProcessMessages_10-2-1-2_test/ProcessMessages_10-2-1-2_test.0.zkey \
-#     --tally-zkey ./zkeys/TallyVotes_10-1-2_test/TallyVotes_10-1-2_test.0.zkey \
-#     --tally-file tally.json \
-#     --output proofs/ \
-#     -tw ./zkeys/TallyVotes_10-1-2_test/TallyVotes_10-1-2_test_js/TallyVotes_10-1-2_test.wasm \
-#     -pw ./zkeys/ProcessMessages_10-2-1-2_test/ProcessMessages_10-2-1-2_test_js/ProcessMessages_10-2-1-2_test.wasm \
-#     -w true \
-#     --start-block 7426694 \
-#     --use-quadratic-voting false
+echo "$BLUE genProofs $RESET"
+node build/ts/index.js genProofs \
+    -sk $coord_priv \
+    --poll-id $POLL_ID \
+    --process-zkey ./zkeys/ProcessMessagesNonQv_10-2-1-2_test/ProcessMessagesNonQv_10-2-1-2_test.0.zkey \
+    --tally-zkey ./zkeys/TallyVotesNonQv_10-1-2_test/TallyVotesNonQv_10-1-2_test.0.zkey \
+    --tally-file tally.json \
+    --output proofs/ \
+    -tw ./zkeys/TallyVotesNonQv_10-1-2_test/TallyVotesNonQv_10-1-2_test_js/TallyVotesNonQv_10-1-2_test.wasm \
+    -pw ./zkeys/ProcessMessagesNonQv_10-2-1-2_test/ProcessMessagesNonQv_10-2-1-2_test_js/ProcessMessagesNonQv_10-2-1-2_test.wasm \
+    -w true \
+    --start-block 7434873 \
+    --use-quadratic-voting false
 
 echo "$BLUE proveOnChain $RESET"
 node build/ts/index.js proveOnChain \
@@ -77,3 +54,5 @@ echo "$BLUE verify $RESET"
 node build/ts/index.js verify \
     -o $POLL_ID \
     -t tally.json
+
+curl -X POST -H "Content-Type: application/json" -d @tally.json localhost:3000/tally
