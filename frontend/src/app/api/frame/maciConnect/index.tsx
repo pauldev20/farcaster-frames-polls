@@ -25,7 +25,6 @@ const encodeWldData = (signal: string, merkleRoot: string, nullifierHash: string
 	]);
 }
 
-
 /* -------------------------------------------------------------------------- */
 /*                                 MACI Calls                                 */
 /* -------------------------------------------------------------------------- */
@@ -131,20 +130,3 @@ const isPollRunning = async (pollId: number) => {
 }
 
 export { signUp, checkIfRegistered, publishVote, getPoll, isPollRunning };
-
-export const test = async () => {
-	// /* -------------------------------- Register -------------------------------- */
-	// console.log(await signUp(299123, "0x4B4ddb5A02b0B6b14274013d6ba13A3fBd65D5d3", "0x1e28120c18d4a1025fbcbc2401462cfce8406fc87b7c8a0468c474649687df70", "0x03236ce6408f6b6b2c233f27ce7f82e0298522e07d839aba71025d77c936df71", "0x1372a2d4ced984879df1f82e701dd18a8345478b6e45551f0f12b1e8e8cfa8e213e016a53def05176936405396ca2f8e910f5fef23ed1303228b057b4ae8656005b8aa35534d506d8886f17d1cdde1d84e08ac3cfa691221a2bc944e7f7a2bc01fcf1cc6429b67da1b23762023b2c06a5012860748e91940e8f849718a1e19de2ad3475545d00f086cfba70ef18f402c0a4f53b144ac0a74303e536569317fcb20840d37cb1431b9ef76ca7170577ce49374f84a0f80ffedb3cd8bb54bc028400a365fcfc6308c1e8b782cfb9064d56a673acd9849d6ceda7907ffd826a43d8529c64acc8f1a16801eaf6b2bb7b4d5effd1939a5e18ca2bd0395d1a9f9ecb6a4"));
-
-	// /* ------------------------ Check if User Registered ------------------------ */
-	// console.log(await checkIfRegistered(299123));
-
-	// /* ------------------------------ Publish Vote ------------------------------ */
-	// await publishVote(2, 0, 299123);
-
-	// /* -------------------------------- Get Poll -------------------------------- */
-	// console.log(await getPoll(1));
-
-	// /* ------------------------------- Is Running ------------------------------- */
-	// console.log(await isPollRunning(2));
-}
