@@ -84,7 +84,7 @@ const publishVote = async (fid: number, pollId: number, voteOptionIndex: number)
 		BigInt(1),
 		keypair.pubKey,
 		BigInt(voteOptionIndex),
-		BigInt(9),
+		BigInt(1),
 		BigInt(1),
 		BigInt(pollId),
 		userSalt
