@@ -5,7 +5,7 @@ import pollFactory from "./pollFactory.json";
 import { genRandomSalt } from "maci-crypto";
 import { ethers } from "ethers";
 
-const MACI_ADDRESS = "0x587E495af03FE6C3ec56a98394807c753B827a75";
+const MACI_ADDRESS = process.env["MACI_ADDRESS"] as string;
 const RPC_PROVIDER = "https://base-sepolia.g.alchemy.com/v2/xC7gy-WyxYdV48GlxEyP4n6xuVfYRTK3";
 
 /* -------------------------------------------------------------------------- */
@@ -53,7 +53,7 @@ const signUp = async (fid: number, merkleRoot: string, nullifierHash: string, pr
 	}
 	const DEFAULT_IVCP_DATA = "0x0000000000000000000000000000000000000000000000000000000000000000";
 	const tx = await account.writeContract({
-		address: MACI_ADDRESS,
+		address: MACI_ADDRESS as `0x${string}`,
 		abi: maciFactory,
 		functionName: "signUp",
 		args: [keypair.pubKey.asContractParam(), encodeWldData(account.account.address, merkleRoot, nullifierHash, proof), DEFAULT_IVCP_DATA]
@@ -109,7 +109,7 @@ const publishVote = async (fid: number, pollId: number, voteOptionIndex: number)
 }
 
 const getPoll = async (pollId: number) => {
-	const resp = fetch("http://168.119.232.46:3000/polls");
+	const resp = fetch("http://168.119.232.46:3000/polls", {cache: "no-store"});
 	const data = await (await resp).json();
 	const filtered = data.filter((poll: any) => poll.id === pollId.toString());
 	if (filtered.length === 0) {
