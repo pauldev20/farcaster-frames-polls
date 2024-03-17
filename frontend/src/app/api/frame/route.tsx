@@ -61,7 +61,6 @@ export async function GET(request: Request) {
 		<div style={{display: "flex"}}>
 			<h1 style={{fontSize: "50px"}}>Question? - {id}</h1>
 		</div>
-		{/* <Image src="https://ichef.bbci.co.uk/news/976/cpsprodpb/16620/production/_91408619_55df76d5-2245-41c1-8031-07a4da3f313f.jpg" alt="ads" style={{height: "100px", width: "100px"}}/> */}
 	</div>), {width: 1200, height: 630});
 }
 
@@ -103,10 +102,10 @@ export async function POST(request: Request) {
 			return new NextResponse();
 		}
 		const verification = await createVerification({
-			app_id: "app_ccc994b5ef2d751551e1a0552d30e8e4",
+			app_id: "app_staging_e5f6479bc07964d51a5d30595a99a2d5",
 			action: "anonymous-vote",
 			verification_level: VerificationLevel.Orb,
-			signal: message.interactor.fid.toString()
+			signal: address
 		});
 		return new NextResponse(getFrameHtmlResponse({
 			buttons: [
