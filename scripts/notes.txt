@@ -1,0 +1,23 @@
+prep:
+1. deployVkRegistry
+2. setVerifyingKeys
+
+
+1. deploy gatekeeper contract
+	- store gatekeeper contract address
+2. create (MACI contract)
+	- store MACI address
+3. set MACI gatekeeper
+	- pass gatekeeper and maci addresses
+4. deployPoll
+5. signup (voter)
+	- pass world id nullifier hash
+6. publish (voter)
+	- pass Poll id
+7. resolve Poll
+	- mergeSignups
+	- mergeMessages
+	- genProofs
+		- add block number of deployment address
+	- proveOnChain
+	- verify
