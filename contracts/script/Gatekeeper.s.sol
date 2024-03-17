@@ -12,8 +12,8 @@ contract DeployGatekeeper is Script {
         address owner = 0xd61091c1051C6d249f0446088C46c8b4A86dF6D7;
         console.log(owner);
         address worldId = 0x42FF98C4E85212a5D31358ACbFe76a621b50fC02;
-        string memory appId = "app_staging_7d78419cadc0289c378a0c834179fcc7";
-        string memory action = "test";
+        string memory appId = "app_staging_e5f6479bc07964d51a5d30595a99a2d5";
+        string memory action = "anonymous-vote";
         vm.broadcast();
         SignUpWorldcoinGatekeeper gatekeeper = new SignUpWorldcoinGatekeeper(owner, worldId, appId, action);
         console.log(address(gatekeeper));
@@ -25,8 +25,8 @@ contract SetMaciGatekeeper is Script {
     address maci;
 
     function setUp() public {
-        gatekeeper = SignUpWorldcoinGatekeeper(0xE22f7407e88d75D98d5e2BEDe7f9980216Ea4402);
-        maci = address(0x10c60c92b24b6bB1Cd620935cc4627C8Fe8cfC3B);
+        gatekeeper = SignUpWorldcoinGatekeeper(0x2E3301C399DCAd3556e7c36e9a0197dB686bD899);
+        maci = address(0x587E495af03FE6C3ec56a98394807c753B827a75);
         console.log(address(this));
     }
 
