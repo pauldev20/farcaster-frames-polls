@@ -8,7 +8,7 @@ const rpcUrl = 'https://base-sepolia-rpc.publicnode.com';
 const entryPoint = ENTRYPOINT_ADDRESS_V06;
 
 const paymasterUrl = `https://api.developer.coinbase.com/rpc/v1/${chain.network}/${process.env['BASE_API_KEY']}`
-const bundlerUrl = `https://api.pimlico.io/v1/${chain.network}/rpc?apikey=${process.env['PIMLICO_API_KEY']}`
+const bundlerUrl = `https://api.developer.coinbase.com/rpc/v1/${chain.network}/${process.env['BASE_API_KEY']}`
 const publicClient = createPublicClient({
 	transport: http(rpcUrl),
 });
