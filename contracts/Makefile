@@ -1,4 +1,4 @@
-RPC="http://127.0.0.1:8545/"
+RPC="https://base-sepolia.g.alchemy.com/v2/xC7gy-WyxYdV48GlxEyP4n6xuVfYRTK3"
 
 include .env
 export

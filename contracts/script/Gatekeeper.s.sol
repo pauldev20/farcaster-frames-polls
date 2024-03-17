@@ -25,8 +25,8 @@ contract SetMaciGatekeeper is Script {
     address maci;
 
     function setUp() public {
-        gatekeeper = SignUpWorldcoinGatekeeper(0xDd34A8E7345E7D398Fc618421AF57c6812b76bBd);
-        maci = address(0x4a5cd58b24e3BF04360B06bFEaF45A39aA8035b6);
+        gatekeeper = SignUpWorldcoinGatekeeper(0xE22f7407e88d75D98d5e2BEDe7f9980216Ea4402);
+        maci = address(0x10c60c92b24b6bB1Cd620935cc4627C8Fe8cfC3B);
         console.log(address(this));
     }
 
