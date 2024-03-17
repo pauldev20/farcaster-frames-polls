@@ -17,9 +17,9 @@ const getAccount = async (fid: number) => {
 		entryPoint,
 		bundlerTransport: http(bundlerUrl),
 		middleware: { 
-			gasPrice: async () => { 
-				return (await bundlerClient.getUserOperationGasPrice()).fast 
-			}, 
+			// gasPrice: async () => { 
+			// 	return (await bundlerClient.getUserOperationGasPrice()).fast 
+			// }, 
 			sponsorUserOperation: paymasterClient.sponsorUserOperation, 
 		}, 
 	})
@@ -45,9 +45,9 @@ const createAccount = async (fid: number) => {
 		entryPoint,
 		bundlerTransport: http(bundlerUrl),
 		middleware: { 
-			gasPrice: async () => { 
-				return (await bundlerClient.getUserOperationGasPrice()).fast 
-			}, 
+			// gasPrice: async () => { 
+			// 	return (await bundlerClient.getUserOperationGasPrice()).fast 
+			// }, 
 			sponsorUserOperation: paymasterClient.sponsorUserOperation, 
 		},
 	})
