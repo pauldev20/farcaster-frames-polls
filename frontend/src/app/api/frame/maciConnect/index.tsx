@@ -99,13 +99,14 @@ const publishVote = async (fid: number, pollId: number, voteOptionIndex: number)
 	} else {
 		account = accountClient;
 	}
-	const tx = await accountClient.writeContract({
+	accountClient.writeContract({
 		address: pollAddress,
 		abi: pollFactory,
 		functionName: "publishMessage",
 		args: [message.asContractParam(), encKeypair.pubKey.asContractParam()]
 	});
-	console.log(tx);
+	console.log("Sent vote to contract");
+	// console.log(tx);
 }
 
 const getPoll = async (pollId: number) => {

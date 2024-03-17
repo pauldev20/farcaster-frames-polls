@@ -124,7 +124,7 @@ export async function POST(request: Request) {
 	/* ------------------------------- Vote Action ------------------------------ */
 	if (action === "vote") {
 		if (searchParams.get("post") == "true") {
-			publishVote(message.interactor.fid, Number(id), message.button - 1);
+			await publishVote(message.interactor.fid, Number(id), message.button - 1);
 			return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=thanks`, request.url));
 		}
 		const pollData = await getPoll(Number(id));
