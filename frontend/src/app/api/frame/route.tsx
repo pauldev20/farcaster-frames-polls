@@ -108,6 +108,7 @@ export async function POST(request: Request) {
 			verification_level: VerificationLevel.Orb,
 			signal: address
 		});
+		console.log(verification.connectionURI);
 		return new NextResponse(getFrameHtmlResponse({
 			buttons: [
 				{
