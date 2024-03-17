@@ -27,7 +27,7 @@ export async function GET(request: Request) {
 			{/* eslint-disable-next-line @next/next/no-img-element */}
 			<img src={qrCode} alt="QRCode" style={{height: "400px", width: "400px"}}/>
 			<div style={{display: "flex", justifyContent: "center", alignItems: "center", textWrap: "wrap"}}>
-				<h1 style={{maxWidth: "500px", overflowWrap: "break-word", textAlign: "center"}}>Please scan with your World ID App to verify. Then press the Refresh Button</h1>
+				<h1 style={{maxWidth: "650px", overflowWrap: "break-word", textAlign: "center"}}>Please scan with your World ID App to verify. Then press the Refresh Button</h1>
 			</div>
 		</div>), {width: 1200, height: 630});
 	}
@@ -124,7 +124,7 @@ export async function POST(request: Request) {
 	/* ------------------------------- Vote Action ------------------------------ */
 	if (action === "vote") {
 		if (searchParams.get("post") == "true") {
-			await publishVote(message.interactor.fid, Number(id), message.button - 1);
+			publishVote(message.interactor.fid, Number(id), message.button - 1);
 			return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=thanks`, request.url));
 		}
 		const pollData = await getPoll(Number(id));
