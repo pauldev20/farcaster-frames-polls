@@ -2,8 +2,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const { exec } = require('child_process');
+var cors = require('cors');
 
 const app = express();
+
+app.use(cors())
+
 const PORT = process.env.PORT || 3000;
 
 const coord_priv="macisk.e6f574787e05b5d7622e8b648be71bfc2120ba6230e107e1e581a698791335be"
@@ -39,7 +43,7 @@ app.post('/create', (req, res) => {
 
     exec('cd ../../votelik/maci/cli && node ./build/ts/index.js deployPoll \
     -pk macipk.398a064125bfa6572b9fac45e9157546fb61df9aa9b721c2e8da32b07abf83a7 \
-    --maci-address 0x587E495af03FE6C3ec56a98394807c753B827a75 \
+    --maci-address 0x2f3c686579Fdd247D30F6f8ce4ceec2436Bb5708 \
     -t 100 -i 1 -m 2 -b 1 -v ' + options.length, (error, stdout, stderr) => {
         if (error) {
             console.error(`Error: ${error.message}`);
