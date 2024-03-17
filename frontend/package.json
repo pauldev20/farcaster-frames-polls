@@ -14,7 +14,6 @@
     "@worldcoin/idkit-core": "^1.1.4",
     "ethers": "^6.11.1",
     "framer-motion": "^11.0.14",
-    "maci-contracts": "^1.2.0",
     "maci-crypto": "^1.2.0",
     "maci-domainobjs": "^1.2.0",
     "next": "14.1.3",
