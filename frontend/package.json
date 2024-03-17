@@ -12,6 +12,7 @@
     "@coinbase/onchainkit": "^0.10.2",
     "@nextui-org/react": "^2.2.10",
     "@worldcoin/idkit-core": "^1.1.4",
+    "clsx": "^2.1.0",
     "ethers": "^6.11.1",
     "framer-motion": "^11.0.14",
     "maci-crypto": "^1.2.0",
