@@ -45,18 +45,18 @@ const createAccount = async (fid: number) => {
 		entryPoint,
 		bundlerTransport: http(bundlerUrl),
 		middleware: { 
-			gasPrice: async () => { 
-				return (await bundlerClient.getUserOperationGasPrice()).fast 
-			}, 
+			// gasPrice: async () => { 
+			// 	return (await bundlerClient.getUserOperationGasPrice()).fast 
+			// }, 
 			sponsorUserOperation: paymasterClient.sponsorUserOperation, 
-		}, 
+		},
 	})
 	await smartAccountClient.sendTransaction({
 		to: "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
 		value: BigInt(0),
 		data: "0x1234",
 	})
-	return smartAccountClient
+	return smartAccountClient;
 }
 
 export { getAccount, createAccount };
