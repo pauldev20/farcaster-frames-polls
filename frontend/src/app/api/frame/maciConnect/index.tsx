@@ -5,7 +5,7 @@ import pollFactory from "./pollFactory.json";
 import { genRandomSalt } from "maci-crypto";
 import { ethers } from "ethers";
 
-const MACI_ADDRESS = "0xFa23A4ecC40d4596f3B041234Ce34e78eE77c2eD";
+const MACI_ADDRESS = "0x587E495af03FE6C3ec56a98394807c753B827a75";
 const RPC_PROVIDER = "https://base-sepolia.g.alchemy.com/v2/xC7gy-WyxYdV48GlxEyP4n6xuVfYRTK3";
 
 /* -------------------------------------------------------------------------- */
@@ -62,8 +62,8 @@ const signUp = async (fid: number, merkleRoot: string, nullifierHash: string, pr
 	console.log(tx);
 }
 
-const publishVote = async (pollId: number, voteOptionIndex: number, seed: number) => {
-	const keypair = createKeypair(BigInt(seed));
+const publishVote = async (fid: number, pollId: number, voteOptionIndex: number) => {
+	const keypair = createKeypair(BigInt(fid));
 	const userSalt = genRandomSalt();
 
 	const provider = new ethers.JsonRpcProvider(RPC_PROVIDER);
@@ -93,9 +93,9 @@ const publishVote = async (pollId: number, voteOptionIndex: number, seed: number
 	const message = command.encrypt(signature, Keypair.genEcdhSharedKey(encKeypair.privKey, coordinatorPubKey));
 
 	let account;
-	const { deployed, accountClient } = await getAccount(seed);
+	const { deployed, accountClient } = await getAccount(fid);
 	if (!deployed) {
-		account = await createAccount(seed);
+		account = await createAccount(fid);
 	} else {
 		account = accountClient;
 	}
@@ -129,7 +129,7 @@ const isPollRunning = async (pollId: number) => {
 	return true;
 }
 
-export { signUp, checkIfRegistered, publishVote };
+export { signUp, checkIfRegistered, publishVote, getPoll, isPollRunning };
 
 export const test = async () => {
 	// /* -------------------------------- Register -------------------------------- */

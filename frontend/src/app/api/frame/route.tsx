@@ -1,18 +1,16 @@
 import { FrameRequest, getFrameHtmlResponse, getFrameMessage } from '@coinbase/onchainkit';
 import { createVerification, checkVerification, createURI } from './wldConnect';
+import { getPoll, publishVote, signUp } from './maciConnect';
 import { createAccount, getAccount } from './safeAccount';
 import { VerificationLevel } from '@worldcoin/idkit-core';
 import { NextResponse } from 'next/server';
 import { ImageResponse } from "next/og";
 import qrcode from "qrcode";
-import { test } from './maciConnect';
 
 export async function GET(request: Request) {
 	const { searchParams } = new URL(request.url);
 	const screen = searchParams.get('screen');
 	const id = searchParams.get('id');
-
-	test();
 
 	/* ---------------------- Registration and Verification --------------------- */
 	if (screen === "register") {
@@ -36,15 +34,16 @@ export async function GET(request: Request) {
 
 	/* ------------------------------ Actuall Vote ------------------------------ */
 	if (screen === "vote") {
+		const pollData = await getPoll(Number(id));
 		return new ImageResponse((<div style={{backgroundColor: "black", display: "flex", width: "100%", height: "100%", color: "white", justifyContent: "flex-start", alignItems: "center", flexDirection: "column"}}>
-			<h1 style={{fontSize: "50px"}}>Question</h1>
+			<h1 style={{fontSize: "50px"}}>{pollData.heading}</h1>
 		</div>), {width: 1200, height: 630});
 	}
 
 	/* ---------------------------- Thanks for Voting --------------------------- */
 	if (screen === "thanks") {
 		return new ImageResponse((<div style={{backgroundColor: "black", display: "flex", width: "100%", height: "100%", color: "white", justifyContent: "flex-start", alignItems: "center", flexDirection: "column"}}>
-			<h1 style={{fontSize: "50px"}}>Thanks for Voting</h1>
+			<h1 style={{fontSize: "50px"}}>Thanks for Voting!</h1>
 		</div>), {width: 1200, height: 630});
 	}
 
@@ -56,10 +55,11 @@ export async function GET(request: Request) {
 	}
 
 	/* ----------------------------- Default Screen ----------------------------- */
+	const pollData = await getPoll(Number(id));
 	return new ImageResponse((<div style={{backgroundColor: "black", display: "flex", width: "100%", height: "100%", color: "white", justifyContent: "flex-start", alignItems: "center", flexDirection: "column"}}>
 		<h1 style={{fontSize: "50px"}}>Farcaster Voting</h1>
 		<div style={{display: "flex"}}>
-			<h1 style={{fontSize: "50px"}}>Question? - {id}</h1>
+			<h1 style={{fontSize: "50px"}}>{pollData.heading}</h1>
 		</div>
 	</div>), {width: 1200, height: 630});
 }
@@ -96,6 +96,7 @@ export async function POST(request: Request) {
 			if (status == true) {
 				/* ------------------------------- Deploy Safe ------------------------------ */
 				await createAccount(message.interactor.fid);
+				await signUp(message.interactor.fid, result?.merkle_root || "", result?.nullifier_hash || "", result?.proof || "");
 
 				return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=vote`, request.url));
 			}
@@ -122,21 +123,17 @@ export async function POST(request: Request) {
 	/* ------------------------------- Vote Action ------------------------------ */
 	if (action === "vote") {
 		if (searchParams.get("post") == "true") {
-			// submit vote to the server and redirect to thanks
-			console.log(message.interactor.fid);
+			await publishVote(message.interactor.fid, Number(id), message.button - 1);
 			return NextResponse.redirect(new URL(`/api/frame?id=${id}&action=thanks`, request.url));
 		}
+		const pollData = await getPoll(Number(id));
 		return new NextResponse(getFrameHtmlResponse({
-			buttons: [
-				{
-					label: `Vote 1`,
+			buttons: pollData.options.map((option: any) => {
+				return {
+					label: option,
 					action: "post"
-				},
-				{
-					label: `Vote 2`,
-					action: "post"
-				},
-			],
+				}
+			}),
 			image: `${process.env['HOST']}/api/frame?id=${id}&screen=vote`,
 			post_url: `${process.env['HOST']}/api/frame?id=${id}&action=vote&post=true`
 		}));
